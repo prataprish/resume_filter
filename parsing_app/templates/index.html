@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Resume Parser</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" >
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    </head>
+    <body>
+        <div class="container-fluid">
+          <div class="">
+            <div style="margin:5vh;font-family:'Comic Sans MS'">
+              <img src="{% static 'logo.png' %}" class="col-xs-1" />
+              <h2>Resume<br>Filter</h2>
+              Choose best of skills required
+            </div>
+            <form action="/" method="post" class="skills_form col-xs-12">
+              {% csrf_token %}
+              <div class="">
+                <label>Primary Skills</label>
+                <div id="pri_skills" ondragover="allowDrop(event)" ondrop="drop(event)" class="dropper col-xs-12" style="background:white;border-radius:2px;min-height:20px;padding:5px;margin: 5px auto;">
+
+                </div>
+                <select class="form-control" name="pri_skills[]" required multiple style="display:none">
+                  {% for skill in skills %}
+                    <option id="pri_skills{{skill.id}}" value="{{skill.skill_name}}">{{ skill.skill_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="">
+                <label>Secondary Skills</label>
+                <div id="sec_skills" ondragover="allowDrop(event)" ondrop="drop(event)" class="dropper col-xs-12" style="background:white;border-radius:2px;min-height:20px;padding:5px;margin: 5px auto;">
+
+                </div>
+                <select  class="form-control" name="sec_skills[]" multiple style="display:None">
+                  {% for skill in skills %}
+                    <option id="sec_skills{{skill.id}}" value="{{skill.skill_name}}">{{ skill.skill_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div><div class="col-xs-12" style="border:1px solid white;margin: 7px 0;"></div></div>
+              <div>
+                <h5>Drag N Drop Skills:</h5>
+                {% for skill in skills %}
+                  <span ondragstart="drag($(this).attr('id'))" draggable="true" class="skill-inid" id="{{ skill.id }}">{{ skill.skill_name }}</span>
+                {% endfor %}
+                <a href="/admin/parsing_app/skill/add/" target="_blank"><span class="skill-inid"><i class="fa fa-plus"> Suggest Skill</i></span></a>
+              </div>
+              <br>
+              <div class="">
+                <input type="submit" value="Proceed" disabled class="btn btn- col-xs-12" style="text-align:center">
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <style media="screen">
+        .skills_form{
+          /* margin-top: 1vh; */
+          margin-bottom: 2vh;
+          padding: 10px;
+          border-radius: 5px;
+          background: #ccc;
+        }
+        .skills_form > *{
+          margin: 10px;
+        }
+        .selected_skill{
+          padding: 3px;
+          border-radius: 5px;
+          background: #fff;
+          margin: 1px;
+        }
+        .skill-inid{
+          padding: 2px 4px;
+          display: inline-block;
+          background: #fff;
+          margin:2px;
+          border-radius: 5px;
+        }
+        .dropper > .skill-inid{
+          background: #ccc;
+        }
+        body{
+          font-family: Tahoma;
+        }
+        a{
+          color: black;
+          text-decoration: none;
+        }
+        </style>
+        <script>
+          $('option').mousedown(function(e) {
+              e.preventDefault();
+              $(this).prop('selected', !$(this).prop('selected'));
+              return false;
+          });
+          function drag(id) { localStorage.setItem('currentDrag',id);console.log(id); }
+          function allowDrop(ev) { ev.preventDefault(); }
+          function drop(evt) {
+            var data = localStorage.getItem('currentDrag');
+            var target = evt.target;
+            var skill = $('#'+data);
+            if(target.id == 'pri_skills'){
+              $('#pri_skills').append(skill);
+              $('#pri_skills'+skill.attr('id')).prop('selected',true);
+              $('input[type="submit"]').prop('disabled',false);
+            } else{
+              $('#sec_skills').append(skill);
+              $('#sec_skills'+skill.attr('id')).prop('selected',true);
+            }
+
+            localStorage.removeItem('currentDrag');
+          }
+        </script>
+    </body>
+</html>

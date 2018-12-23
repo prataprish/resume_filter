@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Resume Parser</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" >
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    </head>
+    <body>
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-xs-12">
+              <div style="margin:5vh;font-family:'Comic Sans MS'">
+                <img src="{% static 'logo.png' %}" class="col-xs-1" />
+                <h2>Resume<br>Filter</h2>
+                Serialised List
+              </div>
+              <table class="col-xs-12 table table-striped table-hover">
+                <!-- <caption class="skills_form"><h4><a href="/" style="float:left;margin:-10px auto"><i class="fa fa-2x fa-home"></i></a>Serialised List</h4></caption> -->
+                <thead>
+                  <tr>
+                    <td>S.No.</td>
+                    <td>Name</td>
+                    <td>Email</td>
+                    <td>Resume</td>
+                  </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <style media="screen">
+          body{
+            font-family: Tahoma;
+          }
+          a{
+            color: black;
+            text-decoration: none;
+          }
+          .skills_form{
+            /* margin-top: 2vh; */
+            text-align: center;
+            background: #ccc;
+            /* height: auto; */
+            padding: 5px;
+            color: black;
+          }
+        </style>
+        <script type="text/javascript">
+          var parsedList = localStorage.getItem('parsedList');
+          parsedList = JSON.parse(parsedList).sort(sortFunction);
+          var rank = 1;
+          parsedList.forEach(function(candi){
+            $('tbody').append('<tr><td>'+rank+'</td><td>'+candi[2]+'</td><td><a href="mailto:'+candi[1]+'">'+candi[1]+' <i class="fa fa-paper-plane"></i></a></td><td><a target="_blank" href="resume?email='+candi[1]+'.pdf"><i class="fa fa-file"></i></a></td></tr>')
+            rank++;
+          });
+
+          function sortFunction(a, b) {
+              if (a[0] === b[0]) {
+                  return 0;
+              }
+              else {
+                  return (a[0] > b[0]) ? -1 : 1;
+              }
+          }
+        </script>
+    </body>
+</html>

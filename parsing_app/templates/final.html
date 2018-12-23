@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Resume Parser</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" >
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    </head>
+    <body>
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-xs-12">
+              <div style="margin:5vh;font-family:'Comic Sans MS'">
+                <img src="{% static 'logo.png' %}" class="col-xs-1" />
+                <h2>Resume<br>Filter</h2>
+                Select all the files required...
+              </div>
+              <form action="final" method="post" class="skills_form col-xs-12">
+                <div class="">
+                  <label>Select CV/Resume</label>
+                  <input type="file" name="resumes" class="form-control" accept=".pdf" multiple value="">
+                  <input type="hidden" name="json_result" value="">
+                </div>
+                <div>
+                  <hr>
+                </div>
+                <div id="parsed">
+                  <h5>Parsed List:</h5>
+                </div>
+                <div>
+                  <hr>
+                </div>
+                <div class="">
+                <button type="submit" disabled class="btn col-xs-12" style="text-align:center">Upload</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <style media="screen">
+        .skills_form{
+          /* margin-top: 2vh; */
+          margin-bottom: 20vh;
+          padding: 10px;
+          border-radius: 5px;
+          background: #ccc;
+          height: auto;
+        }
+        .skills_form > *{
+          margin: 10px;
+        }
+        body{
+          font-family: Tahoma;
+        }
+        a{
+          color: black;
+          text-decoration: none;
+        }
+        </style>
+        <script type="text/javascript">
+          $(document).ready(function(){
+            $('input[name=resumes]').on('change',function(){
+              $('button[type=submit]').html("<i class='fa fa-spinner fa-spin'></i>");
+              var list = []
+              var files = $('input[type=file]')[0];
+              let file = 0;
+              send(file,files,list);
+            });
+          });
+
+          function send(file,files,list){
+            if(file == files.files.length){
+              $('button[type=submit]').html('Proceed');
+              $('button[type=submit]').prop('disabled',false);
+              localStorage.setItem('parsedList',JSON.stringify(list));
+              return
+            }
+            var data = new FormData();
+            data.append('file',files.files[file],'resume.pdf');
+            $.ajax({
+                url: 'fetch',
+                type: 'POST',
+                data: data,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                  try {
+                    res = JSON.parse(res);
+                    console.log(res);
+                    res = res[0];
+                    $('#parsed').append('<div class="parsed">'+(file+1)+": "+res[1]+" <i class='fa fa-check'></i> "+'</div>')
+                    list.push(res);
+                  } catch (e) {
+                    $('#parsed').append('<div class="parsed">'+'Email Not Detected Not Parsing Ahead'+"<i class='fa fa-wrong'></i> "+'</div>')
+                  } finally {
+                    list = send(file+1,files,list);
+                  }
+
+                  return
+                },
+                error: function(){
+                  $('#parsed').append('<div class="parsed">'+'Invalid/Unsupported Resume'+"<i class='fa fa-wrong'></i> "+'</div>');
+                  list = send(file+1,files,list);
+                }
+            });
+          }
+        </script>
+    </body>
+</html>
